@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Container } from 'react-bootstrap';
 import { BrowserRouter as Router } from 'react-router-dom';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 // import AppNavbar from './components/AppNavbar';
 // import Home from './pages/Home';
 
@@ -61,6 +61,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
             <Route path="/workouts" element={<Workouts />} />
+            <Route path="/" element={<Navigate to="/login" replace />} />
             {/*<Route path="/logout" element={<Logout />} />*/}
             {/*<Route path="*" element={<Error />} />*/}
           </Routes>
