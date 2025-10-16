@@ -1,7 +1,30 @@
-import React from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
-const UserContext = React.createContext();
+const UserContext = createContext();
 
-const UserProvider = UserContext.Provider;
+export const UserProvider = ({ children }) => {
+  const [user, setUser] = useState({
+    isAdmin: false,
+    isLoading: true,
+  });
+
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+
+    if (storedUser) {
+      setUser({ ...storedUser, isLoading: false });
+    } else {
+      setUser({ isAdmin: false, isLoading: false });
+    }
+  }, []);
+
+  return (
+    <UserContext.Provider value={{ user, setUser }}>
+      {children}
+    </UserContext.Provider>
+  );
+};
+
+export const useGlobalStore = () => useContext(UserContext);
 
 export default UserContext;

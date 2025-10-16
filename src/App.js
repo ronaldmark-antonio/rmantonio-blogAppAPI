@@ -9,7 +9,7 @@ import { Route, Routes, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 // import Logout from './pages/Logout';
 import Register from './pages/Register';
-import Workouts from './pages/Workouts';
+import Movies from './pages/Movies';
 import UserProvider from './UserContext';
 
 function App() {
@@ -26,7 +26,7 @@ function App() {
 
     useEffect(() => {
 
-    fetch('https://fitnessapp-api-ln8u.onrender.com/users/details', {
+    fetch('https://movieapp-api-lms1.onrender.com/users/details', {
       headers: {
         Authorization: `Bearer ${ localStorage.getItem('token') }`
       }
@@ -60,7 +60,7 @@ function App() {
             {/*<Route path="/" element={<Home />} />*/}
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/workouts" element={<Workouts />} />
+            <Route path="/movies" element={<Movies />} />
             <Route path="/" element={<Navigate to="/login" replace />} />
             {/*<Route path="/logout" element={<Logout />} />*/}
             {/*<Route path="*" element={<Error />} />*/}

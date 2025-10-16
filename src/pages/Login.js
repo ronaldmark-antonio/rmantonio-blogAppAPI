@@ -15,7 +15,7 @@ useEffect(() => {
 	const token = localStorage.getItem('token');
 	if (token) {
 
-	  navigate('/workouts', { replace: true });
+	  // navigate('/movies', { replace: true });
 	
 	}
 }, [navigate]);
@@ -25,66 +25,68 @@ const [password, setPassword] = useState('');
 const isActive = email !== '' && password !== '';
 
 const authenticate = async (e) => {
-	e.preventDefault();
+  e.preventDefault();
 
-	try {
-		const res = await fetch('https://fitnessapi-antonio.onrender.com/users/login', {
-		
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ email, password }),
+  try {
+    const res = await fetch('https://movieapp-api-lms1.onrender.com/users/login', {
+	    method: 'POST',
+	    headers: { 'Content-Type': 'application/json' },
+	    body: JSON.stringify({ email, password }),
+    });
 
-		});
+    const data = await res.json();
 
-		const data = await res.json();
-		if (res.ok && data.access) {
-			
-			localStorage.setItem('token', data.access);
-			
+    if (res.ok && data.access) {
+
 			notyf.success('Successful Login');
 
-			retrieveUserDetails(data.access);
-			
-			navigate('/workouts');
+      localStorage.setItem('token', data.access);
 
-		} else if (data.message === 'Email and password do not match') {
-			
-			notyf.error('Incorrect credentials. Try Again.');
-		
-		} else if (data.message === 'No Email Found') {
-			
-			notyf.error('No Email Found');
-		
-		} else {
-			
-			notyf.error(data.message || 'User Not Found. Try Again.');
-		}
+      await retrieveUserDetails(data.access);
 
-	} catch {
-		
-		notyf.error('Network error. Please try again.');
-	}
+      navigate('/movies');
 
-	setEmail('');
-	setPassword('');
+    } else if (data.message === 'Email and password do not match') {
+      	
+      	notyf.error('Incorrect credentials. Try Again.');
+
+    } else {
+      	
+      	notyf.error(data.message || 'User Not Found. Try Again.');
+    }
+  } catch {
+    
+    		notyf.error('Network error. Please try again.');
+  }
+
+  setEmail('');
+  setPassword('');
 };
-
 
 const retrieveUserDetails = async (token) => {
+  try {
+    const res = await fetch('https://movieapp-api-lms1.onrender.com/users/details', {
+      headers: { 
+      	Authorization: `Bearer ${token}` },
+    });
 
-	try {
-	  
-		const res = await fetch('https://fitnessapi-antonio.onrender.com/users/details', {
-			headers: { Authorization: `Bearer ${token}` },
-		});
-		  
-		const data = await res.json();
-			if (data.user) setUser({ id: data.user._id });
-	
-	} catch {
-	  	console.error('Failed to retrieve user details.');
-	}
+    const data = await res.json();
+
+    if (data.user) {
+      const userData = {
+        id: data.user._id,
+        isAdmin: data.user.isAdmin,
+        isLoading: false,
+      };
+
+      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData));
+    }
+  } catch {
+    console.error('Failed to retrieve user details.');
+  }
 };
+
 
 return (
 <Container className="d-flex align-items-center justify-content-center min-vh-100 bg-light">
@@ -92,7 +94,7 @@ return (
     <Col md={6} lg={5}>
       <Card className="shadow-lg border-0 rounded-1">
         <Card.Body className="p-5">
-          <h2 className="text-center fw-bold mb-4 text-primary">Login</h2>
+          <h2 className="text-center fw-bold mb-4 text-danger">Login</h2>
 
           <Form onSubmit={authenticate}>
             <Form.Group controlId="userEmail" className="mb-3">
@@ -119,7 +121,7 @@ return (
 
             <div className="d-grid">
               <Button
-                variant="primary"
+                variant="danger"
                 type="submit"
                 disabled={!isActive}
                 size="lg"
@@ -133,7 +135,7 @@ return (
           <div className="text-center mt-4">
             <p className="mb-0">
               Don’t have an account?{' '}
-              <a href="/register" className="text-decoration-none fw-semibold text-primary">
+              <a href="/register" className="text-decoration-none fw-semibold text-danger">
                 Register
               </a>
             </p>

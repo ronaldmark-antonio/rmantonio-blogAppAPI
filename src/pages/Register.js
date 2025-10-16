@@ -13,7 +13,7 @@ useEffect(() => {
   const token = localStorage.getItem('token');
   if (token) {
     
-    navigate('/workouts', { replace: true });
+    // navigate('/workouts', { replace: true });
   
   }
 }, [navigate]);
@@ -28,10 +28,10 @@ const registerUser = async (e) => {
 	e.preventDefault();
 
 	try {
-		const res = await fetch('https://fitnessapi-antonio.onrender.com/users/register', {
+		const res = await fetch('https://movieapp-api-lms1.onrender.com/users/register', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ email, password }),
+			body: JSON.stringify({ email, password, isAdmin: false }),
 		});
 
 		const data = await res.json();
@@ -74,7 +74,7 @@ return (
 	    <Col md={6} lg={5}>
 	      <Card className="shadow-lg border-0 rounded-1">
 	        <Card.Body className="p-5">
-	          <h2 className="text-center fw-bold mb-4 text-primary">Register</h2>
+	          <h2 className="text-center fw-bold mb-4 text-danger">Register</h2>
 
 	          <Form onSubmit={registerUser}>
 	            <Form.Group controlId="userEmail" className="mb-3">
@@ -112,7 +112,7 @@ return (
 
 	            <div className="d-grid">
 	              <Button
-	                variant="primary"
+	                variant="danger"
 	                type="submit"
 	                disabled={!isActive}
 	                size="lg"
@@ -128,7 +128,7 @@ return (
 	              Already have an account?{' '}
 	              <a
 	                href="/login"
-	                className="text-decoration-none fw-semibold text-primary"
+	                className="text-decoration-none fw-semibold text-danger"
 	              >
 	                Login
 	              </a>
