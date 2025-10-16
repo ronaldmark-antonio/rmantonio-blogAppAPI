@@ -12,9 +12,13 @@ export const UserProvider = ({ children }) => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
 
     if (storedUser) {
-      setUser({ ...storedUser, isLoading: false });
+
+        setUser({ ...storedUser, isLoading: false });
+
     } else {
-      setUser({ isAdmin: false, isLoading: false });
+
+        setUser({ isAdmin: false, isLoading: false });
+
     }
   }, []);
 

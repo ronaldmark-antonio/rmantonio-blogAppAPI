@@ -1,74 +1,133 @@
 import { useState, useEffect } from 'react';
 import { Container } from 'react-bootstrap';
-import { BrowserRouter as Router } from 'react-router-dom';
-import { Route, Routes, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 
-// import AppNavbar from './components/AppNavbar';
-// import Home from './pages/Home';
-
-// import Error from './pages/Error';
 import Login from './pages/Login';
-// import Logout from './pages/Logout';
 import Register from './pages/Register';
 import Movies from './pages/Movies';
 import UserProvider from './UserContext';
+import AdminView from './components/AdminView';
 import UserView from './components/UserView';
 import ViewMovie from './components/ViewMovie';
 
 function App() {
 
-    const [user, setUser] = useState({
-      id: null
-    });
+  const [user, setUser] = useState(() => {
+    try {
+      const storedUser = localStorage.getItem('user');
 
-    const unsetUser = () => {
+      return storedUser ? JSON.parse(storedUser) : { id: null, isAdmin: false };
 
-      localStorage.clear();
+    } catch {
+        return { id: null, isAdmin: false };
+    }
 
-    };
+  });
 
-    useEffect(() => {
+  const [loading, setLoading] = useState(true);
+
+  const unsetUser = () => {
+    localStorage.clear();
+
+    setUser({ id: null, isAdmin: false });
+
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      setUser({ id: null, isAdmin: false });
+
+      setLoading(false);
+
+      return;
+    }
 
     fetch('https://movieapp-api-lms1.onrender.com/users/details', {
       headers: {
-        Authorization: `Bearer ${ localStorage.getItem('token') }`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     })
-    .then(res => res.json())
-    .then(data => {
-      if (typeof data.user !== "undefined") {
+      .then((res) => {
 
-        setUser({
-          id: data.user._id
-        });
+          if (!res.ok) throw new Error('Invalid token');
+            
+            return res.json();
+      })
+      .then((data) => {
+        
+        if (data.user) {
+          
+          const userData = {
+            id: data.user._id,
 
-      } else {
+            isAdmin: data.user.isAdmin,
+          };
 
-        setUser({
-          id: null
-        });
+          setUser(userData);
+          localStorage.setItem('user', JSON.stringify(userData));
 
-      }
+        } else {
+            unsetUser();
+        }
+      })
+      .catch(() => unsetUser())
+      .finally(() => setLoading(false));
+  }, []);
 
-    })
+  if (loading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center min-vh-100">
+        <div className="spinner-border text-danger" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
 
-    }, []);
+  const RedirectIfLoggedIn = ({ children }) => {
+    return user.id ? <Navigate to="/movies" replace /> : children;
+  };
+
+  const ProtectedRoute = ({ children }) => {
+    return user.id ? children : <Navigate to="/login" replace />;
+  };
 
   return (
-    <UserProvider value={{user, setUser, unsetUser}}>
+    <UserProvider value={{ user, setUser, unsetUser }}>
       <Router>
-        {/*<AppNavbar />*/}
         <Container>
           <Routes>
-            {/*<Route path="/" element={<Home />} />*/}
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/movies" element={<Movies />} />
-            <Route path="/" element={<Navigate to="/login" replace />} />
-            {/*<Route path="/logout" element={<Logout />} />*/}
-            {/*<Route path="*" element={<Error />} />*/}
-            <Route path="/" element={<UserView />} />
-        <Route path="/movie/:id" element={<ViewMovie />} />
+            <Route
+              path="/register"
+              element={
+                <RedirectIfLoggedIn>
+                  <Register />
+                </RedirectIfLoggedIn>
+              }
+            />
+            <Route
+              path="/login"
+              element={
+                <RedirectIfLoggedIn>
+                  <Login />
+                </RedirectIfLoggedIn>
+              }
+            />
+
+            <Route path="/" element={<Navigate to="/movies" replace />} />
+            
+            <Route
+              path="/movies"
+              element={
+                <ProtectedRoute>
+                  {user.isAdmin ? <AdminView /> : <UserView />}
+                </ProtectedRoute>
+              }
+            />
+
+            <Route path="/movie/:id" element={<ViewMovie />} />
           </Routes>
         </Container>
       </Router>

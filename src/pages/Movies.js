@@ -9,7 +9,9 @@ export default function MoviesPage() {
 
   useEffect(() => {
     const fetchMovies = async () => {
+
       if (!user.isLoading) {
+
         try {
           const token = localStorage.getItem('token');
           const endpoint = user.isAdmin
@@ -25,14 +27,17 @@ export default function MoviesPage() {
           });
 
           if (!response.ok) {
+
             throw new Error(`HTTP error! status: ${response.status}`);
+
           }
 
           const data = await response.json();
+
           setMovies(data.movies || data);
 
         } catch (error) {
-          console.error('Error fetching movies:', error);
+            console.error('Error fetching movies:', error);
         }
       }
     };
