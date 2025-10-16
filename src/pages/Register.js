@@ -9,16 +9,6 @@ export default function Register() {
 const notyf = useRef(new Notyf()).current; 
 const navigate = useNavigate();
 
-useEffect(() => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    
-    // navigate('/workouts', { replace: true });
-  
-  }
-}, [navigate]);
-
-
 const [email, setEmail] = useState('');
 const [password, setPassword] = useState('');
 const [confirmPassword, setConfirmPassword] = useState('');
@@ -74,7 +64,7 @@ return (
 	    <Col md={6} lg={5}>
 	      <Card className="shadow-lg border-0 rounded-1">
 	        <Card.Body className="p-5">
-	          <h2 className="text-center fw-bold mb-4 text-danger">Register</h2>
+	          <h2 className="text-center fw-bold mb-4 text-dark">Register</h2>
 
 	          <Form onSubmit={registerUser}>
 	            <Form.Group controlId="userEmail" className="mb-3">

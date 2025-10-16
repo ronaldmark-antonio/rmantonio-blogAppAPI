@@ -1,12 +1,151 @@
-export default function UserView({ moviesData }) {
+import { useState, useEffect } from 'react';
+import { Card, Button, Container, Row, Col, Pagination } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
+
+export default function UserView() {
+  const [movies, setMovies] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const moviesPerPage = 8;
+  const token = localStorage.getItem('token');
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchMovies = async () => {
+      try {
+        const res = await fetch('https://movieapp-api-lms1.onrender.com/movies/getMovies', {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) throw new Error('Failed to fetch movies');
+
+        const data = await res.json();
+        setMovies(Array.isArray(data.movies) ? data.movies : []);
+      } catch (err) {
+        console.error('Error loading movies:', err);
+        alert('Could not load movies.');
+      }
+    };
+
+    fetchMovies();
+  }, [token]);
+
+  const totalPages = Math.ceil(movies.length / moviesPerPage);
+  const indexOfLastMovie = currentPage * moviesPerPage;
+  const indexOfFirstMovie = indexOfLastMovie - moviesPerPage;
+  const currentMovies = [...movies].reverse().slice(indexOfFirstMovie, indexOfLastMovie);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo(0, 0);
+  };
+
+  const handleViewMovie = (movieId) => {
+    navigate(`/movie/${movieId}`);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token'); // Remove token
+    navigate('/login'); // Navigate to login (or change this to '/' if needed)
+  };
+
   return (
-    <div>
-      <h2>User Movies</h2>
-      <ul>
-        {moviesData.map(movie => (
-          <li key={movie._id || movie.id}>{movie.name}</li>
-        ))}
-      </ul>
-    </div>
+    <Container className="py-3">
+      {/* Header with Logout */}
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2 className="mb-0">Movies</h2>
+        <Button variant="dark" onClick={handleLogout}>
+          Logout
+        </Button>
+      </div>
+
+      {currentMovies.length === 0 ? (
+        <p className="text-center text-muted">No movies found.</p>
+      ) : (
+        <>
+          <Row xs={1} sm={2} md={3} lg={4} className="g-3">
+            {currentMovies.map((movie) => (
+              <Col key={movie._id || movie.id}>
+                <Card className="h-100 shadow-sm p-1">
+                  <Card.Body className="d-flex flex-column p-2">
+                    <Card.Title className="mb-2 fs-5">
+                      {movie.title || movie.name || 'Untitled'}
+                    </Card.Title>
+
+                    <Card.Text className="mb-1">
+                      Director: {movie.director || 'Unknown Director'}
+                    </Card.Text>
+
+                    <Card.Text className="mb-1">
+                      Year: {movie.year || 'Unknown Year'}
+                    </Card.Text>
+
+                    <Card.Text className="mb-1">
+                      Description:{' '}
+                      {movie.description
+                        ? movie.description.length > 80
+                          ? movie.description.slice(0, 80) + '...'
+                          : movie.description
+                        : 'No description available.'}
+                    </Card.Text>
+
+                    <Card.Text className="mb-1">
+                      Genre: {movie.genre || 'N/A'}
+                    </Card.Text>
+
+                    {movie.comments && movie.comments.length > 0 && (
+                      <div className="mt-2">
+                        Comments:
+                        <ul
+                          className="mb-1"
+                          style={{ maxHeight: '60px', overflowY: 'auto', paddingLeft: '18px' }}
+                        >
+                          {movie.comments.map((c) => (
+                            <li key={c._id}>{c.comment}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    <Button
+                      variant="danger"
+                      className="mt-auto py-1 px-2 small"
+                      onClick={() => handleViewMovie(movie._id || movie.id)}
+                      type="button"
+                    >
+                      View Movie
+                    </Button>
+                  </Card.Body>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <Pagination className="justify-content-center mt-4">
+              {Array.from({ length: totalPages }).map((_, idx) => {
+                const page = idx + 1;
+                const isActive = page === currentPage;
+
+                return (
+                  <Pagination.Item
+                    key={page}
+                    active={isActive}
+                    onClick={() => handlePageChange(page)}
+                    className={isActive ? 'bg-danger text-white border-danger' : 'bg-dark text-white'}
+                    style={{ border: 'none', margin: '0 4px', cursor: 'pointer' }}
+                  >
+                    {page}
+                  </Pagination.Item>
+                );
+              })}
+            </Pagination>
+          )}
+        </>
+      )}
+    </Container>
   );
 }

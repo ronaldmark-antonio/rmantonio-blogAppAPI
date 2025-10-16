@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Container } from 'react-bootstrap';
 import { BrowserRouter as Router } from 'react-router-dom';
-import { Route, Routes, Navigate } from 'react-router-dom';
+import { Route, Routes, Navigate, useNavigate } from 'react-router-dom';
+
 // import AppNavbar from './components/AppNavbar';
 // import Home from './pages/Home';
 
@@ -11,6 +12,8 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Movies from './pages/Movies';
 import UserProvider from './UserContext';
+import UserView from './components/UserView';
+import ViewMovie from './components/ViewMovie';
 
 function App() {
 
@@ -64,6 +67,8 @@ function App() {
             <Route path="/" element={<Navigate to="/login" replace />} />
             {/*<Route path="/logout" element={<Logout />} />*/}
             {/*<Route path="*" element={<Error />} />*/}
+            <Route path="/" element={<UserView />} />
+        <Route path="/movie/:id" element={<ViewMovie />} />
           </Routes>
         </Container>
       </Router>

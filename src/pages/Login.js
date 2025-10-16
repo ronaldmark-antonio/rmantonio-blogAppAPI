@@ -11,15 +11,6 @@ const notyf = useRef(new Notyf()).current;
 const { setUser } = useContext(UserContext);
 const navigate = useNavigate();
 
-useEffect(() => {
-	const token = localStorage.getItem('token');
-	if (token) {
-
-	  // navigate('/movies', { replace: true });
-	
-	}
-}, [navigate]);
-
 const [email, setEmail] = useState('');
 const [password, setPassword] = useState('');
 const isActive = email !== '' && password !== '';
@@ -94,7 +85,7 @@ return (
     <Col md={6} lg={5}>
       <Card className="shadow-lg border-0 rounded-1">
         <Card.Body className="p-5">
-          <h2 className="text-center fw-bold mb-4 text-danger">Login</h2>
+          <h2 className="text-center fw-bold mb-4 text-dark">Login</h2>
 
           <Form onSubmit={authenticate}>
             <Form.Group controlId="userEmail" className="mb-3">
