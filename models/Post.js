@@ -11,23 +11,24 @@ const postSchema = new mongoose.Schema({
   },
   author_information: {
     type: String,
-    required: [true, 'Author Information is Required']
+    required: [true, 'Content is Required']
   },
   creationAdded: {
     type: Date,
     default: Date.now
   },
   comments: [
-        {
-            userId: {
-                type: String,
-                required: false
-            },
-            comment: {
-                type: String,
-                required: [true, 'Comment is Required']
-            }
-        }
+      {
+          userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: false
+          },
+          comment: {
+              type: String,
+              required: [true, 'Comment is Required']
+          }
+      }
     ]
 });
 

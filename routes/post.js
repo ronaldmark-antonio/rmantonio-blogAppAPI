@@ -12,6 +12,6 @@ router.get("/getPosts", postController.getAllPosts);
 router.get("/getPosts/:postId", postController.getMovieById);
 router.patch("/addComment/:postId", postController.addPostComment);
 router.get("/getComment/:postId", postController.getPostComment);
-router.delete("/deleteComment/:postId/:commentId",verify,verifyAdmin,postController.deleteComment);
+router.delete("/deleteComment/:commentId", verify, verifyAdmin, postController.deleteComment);
 
 module.exports = router;

@@ -3,6 +3,10 @@ const Post = require("../models/Post");
 const { errorHandler } = require('../auth');
 
 module.exports.addPost = (req, res) => {
+  if (req.user.isAdmin) {
+    return res.status(403).send({ message: "Admins are not allowed to create posts" });
+  }
+
   const newPost = new Post({
     title: req.body.title,
     content: req.body.content,
@@ -21,91 +25,87 @@ module.exports.addPost = (req, res) => {
           'creationAdded'
         ]))
       });
-    })
-
-    .catch(error => errorHandler(error, req, res));
+    }).catch(error => errorHandler(error, req, res));
 };
 
 module.exports.updatePost = (req, res) => {
+  if (req.user.isAdmin) {
+    return res.status(403).send({ message: "Admins are not allowed to update posts" });
+  }
 
-    const updatedPost = {
-        title: req.body.title,
-        content: req.body.content,
-        author_information: req.body.author_information
-    };
-
-    Post.findByIdAndUpdate(req.params.postId, updatedPost, { new: true, runValidators: true })
-    .then(post => {
-
-        if (post) {
-
-            res.status(200).send({
-                message: "Post Updated Successfully",
-                updatedPost: JSON.parse(JSON.stringify(post, [
-                    '_id',
-                    'title',
-                    'content',
-                    'author_information',
-                    'creationAdded'
-                ]))
-            });
-
-        } else {
-            res.status(404).send({ message: "Post not found" });
-        }
-    })
-    .catch(error => errorHandler(error, req, res));
-};
-
-
-module.exports.deletePost = (req, res) => {
-  const postId = req.params.postId;
   const userId = req.user.id;
-  const isAdmin = req.user.isAdmin;
 
-  Post.findById(postId)
+  Post.findById(req.params.postId)
     .then(post => {
       if (!post) {
         return res.status(404).send({ message: "Post not found" });
       }
 
-      if (post.author_information !== userId && !isAdmin) {
-        return res.status(403).send({ message: "Unauthorized to delete this post" });
+      const updatedPost = {
+        title: req.body.title,
+        content: req.body.content
+      };
+
+      return Post.findByIdAndUpdate(req.params.postId, updatedPost, { new: true, runValidators: true });
+    })
+    .then(updated => {
+      if (!updated) {
+        return res.status(404).send({ message: "Post not found" });
       }
 
-      return Post.findByIdAndDelete(postId);
-    })
-    .then(deleted => {
-      if (deleted) {
-        return res.status(200).send({ message: "Post deleted successfully" });
-      }
+      res.status(200).send({
+        message: "Post Updated Successfully",
+        updatedPost: JSON.parse(JSON.stringify(updated, [
+          '_id',
+          'title',
+          'content',
+          'author_information',
+          'creationAdded'
+        ]))
+      });
     })
     .catch(error => errorHandler(error, req, res));
 };
 
+
+module.exports.deletePost = async (req, res) => {
+  try {
+    const postId = req.params.postId;
+    const userId = req.user.id;
+    const isAdmin = req.user.isAdmin;
+
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).send({ message: "Post not found" });
+    }
+
+    const authorId = post.author_information?.toString();
+
+    if (authorId !== userId && !isAdmin) {
+      return res.status(403).send({ message: "Unauthorized to delete this post" });
+    }
+
+    await Post.findByIdAndDelete(postId);
+
+    return res.status(200).send({ message: "Post Deleted Successfully" });
+
+  } catch (error) {
+    return errorHandler(error, req, res);
+  }
+};
+
+
 module.exports.getAllPosts = (req, res) => {
-  Post.find({})
+
+    Post.find({})
     .then(posts => {
-      if (posts.length > 0) {
-        const cleanPosts = posts.map(post => {
-          const formattedComments = post.comments.map(comment =>
-            JSON.parse(JSON.stringify(comment, ['_id', 'userId', 'comment']))
-          );
 
-          return JSON.parse(JSON.stringify({
-            _id: post._id,
-            title: post.title,
-            content: post.content,
-            author_information: post.author_information,
-            creationAdded: post.creationAdded,
-            comments: formattedComments
-          }));
-        });
-
-        return res.status(200).send({ posts: cleanPosts });
-      } else {
-        return res.status(200).send({ message: 'No posts found.' });
-      }
+        if (posts.length > 0) {
+            return res.status(200).send({ posts });
+        } else {
+            return res.status(200).send({ message: 'No posts found.' });
+        }
     })
     .catch(error => errorHandler(error, req, res));
 };
@@ -122,10 +122,10 @@ module.exports.getMovieById = (req, res) => {
             return res.status(200).send(post);
 
         } else {
+
             return res.status(404).json({ message: 'Post not found' });
         }
-    })
-    .catch(error => errorHandler(error, req, res));
+    }).catch(error => errorHandler(error, req, res));
 };
 
 module.exports.addPostComment = (req, res) => {
@@ -140,7 +140,9 @@ module.exports.addPostComment = (req, res) => {
 
     Post.findById(postId)
     .then(post => {
+
         if (!post) {
+
             return res.status(404).send({ error: "Post not found." });
         }
 
@@ -150,65 +152,52 @@ module.exports.addPostComment = (req, res) => {
         });
 
         return post.save();
-    })
-    .then(updatedPost => {
+    }).then(updatedPost => {
         return res.status(200).send({
             message: "Comment Added Successfully.",
             Post: updatedPost
         });
-    })
-    .catch(error => errorHandler(error, req, res));
+    }).catch(error => errorHandler(error, req, res));
 };
 
 
 module.exports.getPostComment = (req, res) => {
-  const postId = req.params.postId;
 
-  Post.findById(postId)
+    let postId = req.params.postId;
+
+    Post.findById(postId)
     .then(post => {
+        
+        if (!post) {
+            return res.status(404).send({ error: "Comment not found." });
+        }
 
-      if (!post) {
-
-        return res.status(404).send({ error: "Post not found." });
-
-      }
-
-      const formattedComments = post.comments.map(comment =>
-        JSON.parse(JSON.stringify(comment, [
-          '_id',
-          'comment'
-        ]))
-      );
-
-      return res.status(200).send({ comments: formattedComments });
+        return res.status(200).send({ comments: post.comments });
     })
     .catch(error => errorHandler(error, req, res));
 };
 
-module.exports.deleteComment = (req, res) => {
-  const postId = req.params.postId;
+
+module.exports.deleteComment = async (req, res) => {
   const commentId = req.params.commentId;
 
-  Post.findById(postId)
-    .then(post => {
-      if (!post) {
-        return res.status(404).send({ message: "Post not found" });
-      }
+  try {
+    const post = await Post.findOne({ "comments._id": commentId });
 
-      const commentIndex = post.comments.findIndex(
-        comment => comment._id.toString() === commentId
-      );
+    if (!post) {
+      return res.status(404).send({ message: "Comment not found" });
+    }
 
-      if (commentIndex === -1) {
-        return res.status(404).send({ message: "Comment not found" });
-      }
+    post.comments = post.comments.filter(
+      comment => comment._id.toString() !== commentId
+    );
 
-      post.comments.splice(commentIndex, 1);
+    await post.save();
 
-      return post.save();
-    })
-    .then(() => {
-      return res.status(200).send({ message: "Comment Deleted Successfully" });
-    })
-    .catch(error => errorHandler(error, req, res));
+    return res.status(200).send({ message: "Comment Deleted Successfully" });
+
+  } catch (error) {
+        return errorHandler(error, req, res);
+  }
 };
+
