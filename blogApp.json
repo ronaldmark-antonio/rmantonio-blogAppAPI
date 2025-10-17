@@ -1,5 +1,5 @@
 {
-    "url": "",
+    "url": "https://rmantonio-blogapp.onrender.com",
     "endpoints": {
         "register": "/register",
         "login": "/login",
