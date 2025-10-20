@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 const Post = require("../models/Post");
 const { errorHandler } = require('../auth');
 
-
 module.exports.addPost = (req, res) => {
   if (req.user.isAdmin) {
     return res.status(403).send({ message: "Admins are not allowed to create posts" });
