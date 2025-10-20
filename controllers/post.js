@@ -80,12 +80,6 @@ module.exports.deletePost = async (req, res) => {
       return res.status(404).send({ message: "Post not found" });
     }
 
-    const authorId = post.author_information?.toString();
-
-    if (authorId !== userId && !isAdmin) {
-      return res.status(403).send({ message: "Unauthorized to delete this post" });
-    }
-
     await Post.findByIdAndDelete(postId);
 
     return res.status(200).send({ message: "Post Deleted Successfully" });
