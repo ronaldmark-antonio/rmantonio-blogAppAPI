@@ -22,7 +22,7 @@ export default function Register() {
     setLoading(true);
 
     try {
-      const res = await fetch('https://movieapp-api-lms1.onrender.com/users/register', {
+      const res = await fetch('https://rmantonio-blogapp.onrender.com/users/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, isAdmin: false }),
@@ -40,7 +40,7 @@ export default function Register() {
 
           navigate('/login');
 
-      } else if (data.error === 'Password must be atleast 8 characters') {
+      } else if (data.error === 'Password must be at least 8 characters') {
 
           notyf.error('Password must be at least 8 characters');
 
@@ -112,7 +112,7 @@ export default function Register() {
 
                   <div className="d-grid">
                     <Button
-                      variant="danger"
+                      variant="dark"
                       type="submit"
                       disabled={!isActive || loading}
                       size="lg"
@@ -139,7 +139,7 @@ export default function Register() {
                 <div className="mt-4">
                   <p className="mb-0">
                     Already have an account?{' '}
-                    <a href="/login" className="text-decoration-none fw-semibold text-danger">
+                    <a href="/login" className="text-decoration-none fw-semibold text-dark">
                       Login
                     </a>
                   </p>

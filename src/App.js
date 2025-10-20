@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Movies from './pages/Movies';
+import Posts from './pages/Posts';
 import UserProvider from './UserContext';
 import AdminView from './components/AdminView';
 import UserView from './components/UserView';
@@ -44,7 +44,7 @@ function App() {
       return;
     }
 
-    fetch('https://movieapp-api-lms1.onrender.com/users/details', {
+    fetch('https://rmantonio-blogapp.onrender.com/users/details', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -87,7 +87,7 @@ function App() {
   }
 
   const RedirectIfLoggedIn = ({ children }) => {
-    return user.id ? <Navigate to="/movies" replace /> : children;
+    return user.id ? <Navigate to="/posts" replace /> : children;
   };
 
   const ProtectedRoute = ({ children }) => {
@@ -116,10 +116,10 @@ function App() {
               }
             />
 
-            <Route path="/" element={<Navigate to="/movies" replace />} />
+            <Route path="/" element={<Navigate to="/posts" replace />} />
             
             <Route
-              path="/movies"
+              path="/posts"
               element={
                 <ProtectedRoute>
                   {user.isAdmin ? <AdminView /> : <UserView />}
@@ -127,7 +127,7 @@ function App() {
               }
             />
 
-            <Route path="/movie/:id" element={<ViewMovie />} />
+            <Route path="/post/:id" element={<ViewMovie />} />
           </Routes>
         </Container>
       </Router>
