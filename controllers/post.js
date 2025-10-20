@@ -28,6 +28,7 @@ module.exports.addPost = (req, res) => {
     }).catch(error => errorHandler(error, req, res));
 };
 
+
 module.exports.updatePost = (req, res) => {
   if (req.user.isAdmin) {
     return res.status(403).send({ message: "Admins are not allowed to update posts" });
@@ -121,6 +122,7 @@ module.exports.getMovieById = (req, res) => {
         }
     }).catch(error => errorHandler(error, req, res));
 };
+
 
 module.exports.addPostComment = (req, res) => {
     
