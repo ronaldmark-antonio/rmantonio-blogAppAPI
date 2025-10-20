@@ -196,4 +196,3 @@ module.exports.deleteComment = async (req, res) => {
         return errorHandler(error, req, res);
   }
 };
-
