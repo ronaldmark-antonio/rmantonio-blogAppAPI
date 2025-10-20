@@ -42,3 +42,17 @@ module.exports.loginUser = (req, res) => {
         })
         .catch(error => errorHandler(error, req, res));
 };
+
+module.exports.getProfile = (req, res) => {
+    
+    return User.findById(req.user.id)
+        .then(user => {
+            if (!user) {
+                return res.status(404).send({ error: "User not found" });
+            }
+
+            let { _id, email, __v } = user;
+            res.send({ user: { _id, email, __v } });
+        })
+        .catch(error => errorHandler(error, req, res));
+};
