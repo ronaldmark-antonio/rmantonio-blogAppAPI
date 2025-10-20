@@ -8,10 +8,8 @@ import logo from '../images/streamflix-logo.png';
 export default function UserView() {
   const notyf = useRef(new Notyf({ duration: 2000, ripple: true })).current;
 
-  // Posts state
   const [posts, setPosts] = useState([]);
 
-  // Modal control
   const [showModal, setShowModal] = useState(false);
 
   // Form state (used for both add & edit)
