@@ -32,6 +32,10 @@ module.exports.addPost = (req, res) => {
 module.exports.updatePost = (req, res) => {
   const userId = req.user.id;
 
+  if (req.user.isAdmin) {
+    return res.status(403).send({ message: "Admins are not allowed to update posts" });
+  }
+
   Post.findById(req.params.postId)
     .then(post => {
       if (!post) {
