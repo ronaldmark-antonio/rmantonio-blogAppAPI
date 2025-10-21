@@ -70,7 +70,6 @@ module.exports.updatePost = (req, res) => {
 };
 
 
-
 module.exports.deletePost = async (req, res) => {
   try {
     const postId = req.params.postId;
