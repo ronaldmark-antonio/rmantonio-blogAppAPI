@@ -30,10 +30,6 @@ module.exports.addPost = (req, res) => {
 
 
 module.exports.updatePost = (req, res) => {
-  if (req.user.isAdmin) {
-    return res.status(403).send({ message: "Admins are not allowed to update posts" });
-  }
-
   const userId = req.user.id;
 
   Post.findById(req.params.postId)
@@ -44,7 +40,8 @@ module.exports.updatePost = (req, res) => {
 
       const updatedPost = {
         title: req.body.title,
-        content: req.body.content
+        content: req.body.content,
+        author_information: req.body.author_information,
       };
 
       return Post.findByIdAndUpdate(req.params.postId, updatedPost, { new: true, runValidators: true });
@@ -67,6 +64,7 @@ module.exports.updatePost = (req, res) => {
     })
     .catch(error => errorHandler(error, req, res));
 };
+
 
 
 module.exports.deletePost = async (req, res) => {
