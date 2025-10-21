@@ -11,7 +11,7 @@ const postSchema = new mongoose.Schema({
   },
   author_information: {
     type: String,
-    required: [true, 'Content is Required']
+    required: [true, 'Author information is Required']
   },
   creationAdded: {
     type: Date,
